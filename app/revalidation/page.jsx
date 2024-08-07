@@ -1,81 +1,28 @@
-import { revalidateTag } from 'next/cache';
-import { SubmitButton } from '../../components/submit-button';
-import { Markdown } from '../../components/markdown';
-
 export const metadata = {
-    title: 'On-Demand Revalidation'
+    title: 'Dealership Inline Banners'
 };
 
-const tagName = 'randomWiki';
-const randomWikiUrl = 'https://en.wikipedia.org/api/rest_v1/page/random/summary';
-const maxExtractLength = 200;
-const revalidateTTL = 60;
-
-const explainer = `
-This page perfoms a \`fetch\` on the server to get a random article from Wikipedia. 
-The fetched data is then cached with a tag named "${tagName}" and a maximum age of ${revalidateTTL} seconds.
-
-~~~jsx
-const url = 'https://en.wikipedia.org/api/rest_v1/page/random/summary';
-
-async function RandomArticleComponent() {
-    const randomArticle = await fetch(url, {
-        next: { revalidate: ${revalidateTTL}, tags: ['${tagName}'] }
-    });
-    // ...render
-}
-~~~
-
-After the set time has passed, the first request for this page would trigger its rebuild in the background. When the new page is ready, subsequent requests would return the new page - 
-see [\`stale-white-revalidate\`](https://www.netlify.com/blog/swr-and-fine-grained-cache-control/).
-
-Alternatively, if the cache tag is explicitly invalidated by \`revalidateTag('${tagName}')\`, any page using that tag would be rebuilt in the background when requested.
-
-In real-life applications, tags are typically invalidated when data has changed in an external system (e.g., the CMS notifies the site about content changes via a webhook), or after a data mutation made through the site.
-
-For this functionality to work, Next.js uses the [fine-grained caching headers](https://docs.netlify.com/platform/caching/) available on Netlify - but you can use these features on basically any Netlify site!
-`;
-
-
-export default async function Page() {
-    async function revalidateWiki() {
-        'use server';
-        revalidateTag(tagName);
-    }
-
+function IframeWidget() {
     return (
-        <>
-            <h1>Revalidation Basics</h1>
-            <Markdown content={explainer} />
-            <form className="mt-4" action={revalidateWiki}>
-                <SubmitButton text="Click to Revalidate" />
-            </form>
-            <RandomWikiArticle />
-        </>
+        <div className="bg-white text-neutral-600 card my-6 max-w-2xl">
+            <div className="card-title text-3xl px-8 pt-8">Dealership Inline Banners</div>
+            <div className="card-body py-4">
+                <iframe 
+                    src="https://miai.retool.com/embedded/public/c4ae30c6-59bd-41c6-9c17-a8ebe9044d41" 
+                    width="100%" 
+                    height="600px" 
+                    style={{ border: 'none' }}
+                    title="Dealership Inline Banners"
+                />
+            </div>
+        </div>
     );
 }
 
-async function RandomWikiArticle() {
-    const randomWiki = await fetch(randomWikiUrl, {
-        next: { revalidate: revalidateTTL, tags: [tagName] }
-    });
-
-    const content = await randomWiki.json();
-    let extract = content.extract;
-    if (extract.length > maxExtractLength) {
-        extract = extract.slice(0, extract.slice(0, maxExtractLength).lastIndexOf(' ')) + ' [...]';
-    }
-
+export default function Page() {
     return (
-        <div className="bg-white text-neutral-600 card my-6 max-w-2xl">
-            <div className="card-title text-3xl px-8 pt-8">{content.title}</div>
-            <div className="card-body py-4">
-                <div className="text-lg font-bold">{content.description}</div>
-                <p className="italic">{extract}</p>
-                <a target="_blank" rel="noopener noreferrer" href={content.content_urls.desktop.page}>
-                    From Wikipedia
-                </a>
-            </div>
-        </div>
+        <>
+            <IframeWidget />
+        </>
     );
 }
